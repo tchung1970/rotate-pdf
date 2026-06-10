@@ -1,7 +1,7 @@
 # Rotate PDF
 
 A single-page web app to upload a PDF, rotate any/all pages, and download the result.
-Live at: https://ai.tchung.org/rotate/
+Live at: https://ai.tchung.org/rotate-pdf/
 
 ![Rotate PDF screenshot](docs/screenshot.png)
 
@@ -48,9 +48,9 @@ vendor these two libraries into this directory and update the `<script>` src pat
 ## Deploy
 Static file, no backend or special nginx config needed (served by a default
 `location /` static block). For example, the live site is served from
-`/var/www/html/rotate/` and updated by copying the file up to the host:
+`/var/www/html/rotate-pdf/` and updated by copying the file up to the host:
 
-    scp index.html user@your-server:/var/www/html/rotate/
+    scp index.html user@your-server:/var/www/html/rotate-pdf/
 
 ## License
 [MIT](LICENSE) © Thomas Chung
