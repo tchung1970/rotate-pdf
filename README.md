@@ -24,7 +24,7 @@ any page, all locally.
 - Drag-and-drop or click-to-browse upload
 - Per-page rotate left / right (90° steps)
 - "Rotate all 90°" and "Reset" buttons
-- Large, centered, high-resolution page previews (render scale 1.5, ~380px tall)
+- Large, centered, high-resolution page previews (render scale 1.5, ~320px tall)
 
 ## Run locally
 The app is one self-contained file with no build step. Either:
