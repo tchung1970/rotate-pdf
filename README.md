@@ -5,7 +5,7 @@ Live at: https://ai.tchung.org/rotate-pdf/
 
 | Before | After |
 |:------:|:-----:|
-| ![Page upright](docs/before.png) | ![Page rotated 90°](docs/after.png) |
+| ![Page sideways](docs/before.png?v=2) | ![Page upright](docs/after.png?v=2) |
 
 ## Why
 Adobe quietly paywalled page rotation in the free Acrobat Reader in late 2021.
