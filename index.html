@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rotate PDF</title>
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --bg-grad-1: #eef2ff;
+    --bg-grad-2: #f7f9fc;
+    --card: #ffffff;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --accent-soft: #eff4ff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 1px 3px rgba(15,23,42,.06), 0 8px 24px rgba(15,23,42,.06);
+    --shadow-lg: 0 4px 12px rgba(15,23,42,.08), 0 16px 48px rgba(15,23,42,.10);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple SD Gothic Neo", sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1200px 600px at 50% -10%, var(--bg-grad-1), transparent 60%),
+      var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 48px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .head { text-align: center; max-width: 640px; margin-bottom: 32px; }
+  .logo {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    margin: 0 auto 18px;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 6px 16px rgba(37,99,235,.35);
+  }
+  .logo svg { width: 28px; height: 28px; color: #fff; }
+  h1 { font-weight: 700; font-size: 30px; letter-spacing: -.02em; margin: 0 0 8px; }
+  .sub { color: var(--muted); margin: 0; font-size: 15px; line-height: 1.6; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px;
+    width: 100%;
+    max-width: 1080px;
+    box-shadow: var(--shadow);
+  }
+  #drop {
+    border: 2px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 56px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .15s;
+    background: linear-gradient(180deg, #fbfdff, #f6f9ff);
+    display: block;
+  }
+  #drop:hover { border-color: var(--accent); background: var(--accent-soft); }
+  #drop.drag { border-color: var(--accent); background: var(--accent-soft); transform: scale(1.005); }
+  #drop .ico {
+    width: 44px; height: 44px; margin: 0 auto 14px;
+    color: var(--accent);
+  }
+  #drop .ico svg { width: 100%; height: 100%; }
+  #drop .big { font-size: 16px; color: var(--text); font-weight: 500; }
+  #drop .small { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  #drop strong { color: var(--accent); }
+  input[type=file] { display: none; }
+
+  .toolbar {
+    display: none;
+    margin-top: 24px;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .toolbar.show { display: flex; }
+  button {
+    font-family: inherit;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .15s, box-shadow .15s, transform .05s;
+    box-shadow: 0 1px 2px rgba(37,99,235,.25);
+  }
+  button:hover { background: var(--accent-hover); }
+  button:active { transform: translateY(1px); }
+  button.ghost {
+    background: #fff; border: 1px solid var(--border); color: var(--text);
+    box-shadow: none;
+  }
+  button.ghost:hover { background: #f8fafc; border-color: #cbd5e1; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .filename {
+    color: var(--muted); font-size: 13px;
+    flex-basis: 100%; justify-content: center;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .filename svg { width: 15px; height: 15px; flex-shrink: 0; color: #94a3b8; }
+
+  #pages {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 400px));
+    gap: 22px;
+    margin-top: 24px;
+    justify-content: center;
+  }
+  .page {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    transition: box-shadow .15s, border-color .15s;
+  }
+  .page:hover { box-shadow: var(--shadow); border-color: #cbd5e1; }
+  .thumb {
+    display: flex; align-items: center; justify-content: center;
+    height: 380px; overflow: hidden;
+  }
+  .thumb canvas {
+    max-width: 100%; max-height: 380px; height: auto;
+    border-radius: 4px;
+    transition: transform .25s ease;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(15,23,42,.12);
+  }
+  .page .num { font-size: 12px; color: var(--muted); margin: 12px 0 8px; font-weight: 500; }
+  .page .rot {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 8px;
+    margin: 0 3px;
+    box-shadow: none;
+    font-weight: 600;
+  }
+  .page .rot:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  .status { color: var(--muted); font-size: 13px; margin-top: 16px; min-height: 18px; text-align: center; }
+  .status.err { color: #dc2626; }
+  .status.ok { color: #059669; }
+  .foot { margin-top: 28px; color: #94a3b8; font-size: 15px; text-align: center; line-height: 1.8; }
+  .foot a { color: var(--accent); text-decoration: none; font-weight: 500; }
+  .foot a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 2v6h-6"/>
+        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/>
+        <path d="M3 22v-6h6"/>
+        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+      </svg>
+    </div>
+    <h1>Rotate PDF</h1>
+    <p class="sub">Upload a PDF, rotate any page, and download the result.<br>Everything runs in your browser &mdash; your file is never uploaded to a server.</p>
+  </div>
+
+  <div class="card">
+    <label id="drop" for="file">
+      <div class="ico">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <div class="big">Drop a PDF here or <strong>click to browse</strong></div>
+      <div class="small">Your document stays on this device</div>
+    </label>
+    <input type="file" id="file" accept="application/pdf,.pdf">
+
+    <div class="toolbar" id="toolbar">
+      <button id="rotateAll">Rotate all 90&deg;</button>
+      <button id="resetAll">Reset</button>
+      <button id="download">Download PDF</button>
+      <span class="filename" id="filename"></span>
+    </div>
+
+    <div class="status" id="status"></div>
+    <div id="pages"></div>
+  </div>
+
+  <div class="foot">Runs entirely in your browser &middot; powered by pdf.js &amp; pdf-lib<br>Built with <a href="https://www.anthropic.com/news/claude-opus-4-8" target="_blank" rel="noopener">Claude Opus 4.8</a></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  const drop = document.getElementById("drop");
+  const fileInput = document.getElementById("file");
+  const toolbar = document.getElementById("toolbar");
+  const pagesEl = document.getElementById("pages");
+  const statusEl = document.getElementById("status");
+  const filenameEl = document.getElementById("filename");
+
+  let originalBytes = null;   // ArrayBuffer of the uploaded PDF
+  let baseRotations = [];     // each page's intrinsic rotation from the file
+  let rotations = [];         // extra rotation the user applies (multiple of 90)
+  let canvases = [];          // rendered thumbnail canvases, by page index
+  let currentName = "document.pdf";
+
+  function setStatus(msg, kind) {
+    statusEl.textContent = msg || "";
+    statusEl.classList.remove("err", "ok");
+    if (kind) statusEl.classList.add(kind);
+  }
+
+  ["dragenter", "dragover"].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("drag"); }));
+  ["dragleave", "drop"].forEach(ev =>
+    drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("drag"); }));
+  drop.addEventListener("drop", e => {
+    const f = e.dataTransfer.files[0];
+    if (f) handleFile(f);
+  });
+  fileInput.addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (f) handleFile(f);
+  });
+
+  async function handleFile(file) {
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setStatus("Please choose a PDF file.", "err");
+      return;
+    }
+    currentName = file.name.replace(/\.pdf$/i, "") + "-rotated.pdf";
+    filenameEl.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>' +
+      "<span></span>";
+    filenameEl.querySelector("span").textContent = file.name;
+    setStatus("Loading…");
+    pagesEl.innerHTML = "";
+    try {
+      originalBytes = await file.arrayBuffer();
+      await renderPages();
+      toolbar.classList.add("show");
+      setStatus("");
+    } catch (err) {
+      console.error(err);
+      setStatus("Could not read that PDF: " + err.message, "err");
+    }
+  }
+
+  function applyTransform(idx) {
+    canvases[idx].style.transform =
+      "rotate(" + ((baseRotations[idx] + rotations[idx]) % 360) + "deg)";
+  }
+
+  async function renderPages() {
+    // pdf.js consumes the buffer it's given, so hand it a copy and keep
+    // originalBytes intact for pdf-lib at download time.
+    const pdf = await pdfjsLib.getDocument({ data: originalBytes.slice(0) }).promise;
+    baseRotations = new Array(pdf.numPages).fill(0);
+    rotations = new Array(pdf.numPages).fill(0);
+    canvases = new Array(pdf.numPages);
+    pagesEl.innerHTML = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const idx = i - 1;
+      const page = await pdf.getPage(i);
+      baseRotations[idx] = page.rotate || 0;
+
+      // Render upright (ignore intrinsic rotation here) and reproduce that
+      // rotation purely via CSS transform so it matches the rotations counter.
+      const viewport = page.getViewport({ scale: 1.5, rotation: 0 });
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport }).promise;
+      canvases[idx] = canvas;
+
+      const wrap = document.createElement("div");
+      wrap.className = "page";
+
+      const thumb = document.createElement("div");
+      thumb.className = "thumb";
+      thumb.appendChild(canvas);
+
+      const num = document.createElement("div");
+      num.className = "num";
+      num.textContent = "Page " + i;
+
+      const left = document.createElement("button");
+      left.className = "rot"; left.innerHTML = "&#8634;";
+      left.title = "Rotate left";
+      const right = document.createElement("button");
+      right.className = "rot"; right.innerHTML = "&#8635;";
+      right.title = "Rotate right";
+
+      left.onclick = () => { rotations[idx] = (rotations[idx] - 90 + 360) % 360; applyTransform(idx); };
+      right.onclick = () => { rotations[idx] = (rotations[idx] + 90) % 360; applyTransform(idx); };
+
+      const ctrls = document.createElement("div");
+      ctrls.appendChild(left);
+      ctrls.appendChild(right);
+
+      wrap.appendChild(thumb);
+      wrap.appendChild(num);
+      wrap.appendChild(ctrls);
+      pagesEl.appendChild(wrap);
+      applyTransform(idx);
+    }
+  }
+
+  document.getElementById("rotateAll").onclick = () => {
+    for (let i = 0; i < rotations.length; i++) {
+      rotations[i] = (rotations[i] + 90) % 360;
+      applyTransform(i);
+    }
+  };
+
+  document.getElementById("resetAll").onclick = () => {
+    for (let i = 0; i < rotations.length; i++) {
+      rotations[i] = 0;
+      applyTransform(i);
+    }
+  };
+
+  document.getElementById("download").onclick = async () => {
+    if (!originalBytes) return;
+    setStatus("Building PDF…");
+    try {
+      const { PDFDocument, degrees } = PDFLib;
+      const pdfDoc = await PDFDocument.load(originalBytes);
+      pdfDoc.getPages().forEach((p, idx) => {
+        const current = p.getRotation().angle || 0;
+        p.setRotation(degrees((current + (rotations[idx] || 0)) % 360));
+      });
+      const out = await pdfDoc.save();
+      const blob = new Blob([out], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = currentName;
+      a.click();
+      URL.revokeObjectURL(url);
+      setStatus("Downloaded " + currentName, "ok");
+    } catch (err) {
+      console.error(err);
+      setStatus("Failed to build PDF: " + err.message, "err");
+    }
+  };
+</script>
+</body>
+</html>
