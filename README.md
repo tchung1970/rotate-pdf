@@ -3,7 +3,9 @@
 A single-page web app to upload a PDF, rotate any/all pages, and download the result.
 Live at: https://ai.tchung.org/rotate-pdf/
 
-![Rotate PDF screenshot](docs/screenshot.png)
+| Before | After |
+|:------:|:-----:|
+| ![Page upright](docs/before.png) | ![Page rotated 90°](docs/after.png) |
 
 ## Why
 Adobe quietly paywalled page rotation in the free Acrobat Reader in late 2021.
@@ -37,7 +39,7 @@ The app is one self-contained file with no build step. Either:
 ## Files
 - `index.html` — the entire app (HTML + CSS + JS inline).
 - `Example.pdf` — a sample one-page PDF to try the rotator on.
-- `docs/` — screenshots used in this README.
+- `docs/` — `before.png` / `after.png` screenshots used in this README.
 
 ## Dependencies (loaded from CDN at runtime)
 - pdf-lib 1.17.1  (cdnjs)
