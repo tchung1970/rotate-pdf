@@ -5,7 +5,7 @@ Live at: https://ai.tchung.org/rotate-pdf/
 
 | Before | After |
 |:------:|:-----:|
-| ![Page sideways](docs/before.png?v=2) | ![Page upright](docs/after.png?v=2) |
+| ![Page sideways](docs/cert-before.png) | ![Page upright](docs/cert-after.png) |
 
 ## Why
 Adobe quietly paywalled page rotation in the free Acrobat Reader in late 2021.
@@ -38,8 +38,8 @@ The app is one self-contained file with no build step. Either:
 
 ## Files
 - `index.html` — the entire app (HTML + CSS + JS inline).
-- `docs/` — `before.png` / `after.png` screenshots used in this README, and
-  `example.pdf`, a sample one-page PDF to try the rotator on.
+- `docs/` — `cert-before.png` / `cert-after.png` screenshots used in this README,
+  and `example.pdf`, a sample one-page PDF to try the rotator on.
 
 ## Dependencies (loaded from CDN at runtime)
 - pdf-lib 1.17.1  (cdnjs)
