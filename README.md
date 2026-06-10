@@ -36,6 +36,7 @@ The app is one self-contained file with no build step. Either:
 
 ## Files
 - `index.html` — the entire app (HTML + CSS + JS inline).
+- `Example.pdf` — a sample one-page PDF to try the rotator on.
 - `docs/` — screenshots used in this README.
 
 ## Dependencies (loaded from CDN at runtime)
