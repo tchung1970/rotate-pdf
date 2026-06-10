@@ -38,8 +38,8 @@ The app is one self-contained file with no build step. Either:
 
 ## Files
 - `index.html` — the entire app (HTML + CSS + JS inline).
-- `Example.pdf` — a sample one-page PDF to try the rotator on.
-- `docs/` — `before.png` / `after.png` screenshots used in this README.
+- `docs/` — `before.png` / `after.png` screenshots used in this README, and
+  `Example.pdf`, a sample one-page PDF to try the rotator on.
 
 ## Dependencies (loaded from CDN at runtime)
 - pdf-lib 1.17.1  (cdnjs)
